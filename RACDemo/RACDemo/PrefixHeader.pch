@@ -1,0 +1,21 @@
+//
+//  PrefixHeader.pch
+//  RACDemo
+//
+//  Created by wangyuan on 2018/1/17.
+//  Copyright © 2018年 wangyuan. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <ReactiveCocoa/ReactiveCocoa.h>
+#import <500px-iOS-api/PXAPI.h>
+#import <libextobjc/EXTScope.h>
+
+
+#import "AppDelegate.h"
+
+#define RACAppDelegate [[UIApplication sharedApplication] delegate]
+
+#endif /* PrefixHeader_pch */
