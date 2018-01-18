@@ -9,6 +9,7 @@
 #import "RACGalleryViewController.h"
 #import "RACGalleryFlowLayout.h"
 #import "RACGalleryViewModel.h"
+#import "GalleryCell.h"
 
 @interface RACGalleryViewController ()
 
@@ -26,6 +27,7 @@ static NSString * const reuseIdentifier = @"Cell";
     if (!self) {
         return nil;
     }
+    self.viewModel = [RACGalleryViewModel new];
     return self;
 }
 
@@ -38,11 +40,21 @@ static NSString * const reuseIdentifier = @"Cell";
     [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
     @weakify(self);
-    [RACObserve(self.viewModel, model) subscribeNext:^(id x) {
+    [RACObserve(self.viewModel, models) subscribeNext:^(id x) {
         @strongify(self);
         [self.collectionView reloadData];
     }];
     
+   
+    [[self rac_signalForSelector:@selector(collectionView:didSelectItemAtIndexPath:) fromProtocol:@protocol(UICollectionViewDelegate)] subscribeNext:^(RACTuple *arguments) {
+        
+        @strongify(self);
+        NSIndexPath *indexPath = arguments.second;
+        
+    }];
+    
+    self.collectionView.delegate = nil;
+    self.collectionView.delegate = self;
 }
 
 
@@ -58,9 +70,9 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    GalleryCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
     
-    
+    [cell setPhotoModel:self.viewModel.models[indexPath.row]];
     return cell;
 }
 

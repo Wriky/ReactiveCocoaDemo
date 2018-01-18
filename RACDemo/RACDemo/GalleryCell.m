@@ -7,6 +7,8 @@
 //
 
 #import "GalleryCell.h"
+#import "RACPhotoModel.h"
+#import "NSData+AFDecompression.h"
 
 @interface GalleryCell()
 @property (nonatomic, weak) UIImageView *imageView;
@@ -27,9 +29,20 @@
     
     self.imageView = imageView;
     
+    RAC(self.imageView, image) = [[[RACObserve(self, photoModel.thumbnailData) ignore:nil] map:^id(id value) {
+        return [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+            [value af_decompressedImageFromJPEGDataWithCallback:
+             ^(UIImage *decompressedImage) {
+                 [subscriber sendNext:decompressedImage];
+                 [subscriber sendCompleted];
+             }];
+            return nil;
+        }] subscribeOn:[RACScheduler scheduler]];
+    }] switchToLatest];
     
-    
-    
+    [self.rac_prepareForReuseSignal subscribeNext:^(id x) {
+        self.imageView.image = nil;
+    }];
     
     return self;
 }
